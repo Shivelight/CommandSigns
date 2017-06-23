@@ -1,0 +1,5 @@
+# Build Folders
+bin/
+.settings
+.project
+.classpath
