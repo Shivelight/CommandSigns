@@ -17,9 +17,7 @@ public class MoneyHandler extends Handler {
 			} catch (NumberFormatException ex) {
 				return;
 			}
-			if (CommandSigns.economy.withdrawPlayer(e.getPlayer().getName(),
-					amount).transactionSuccess()
-					^ negate) {
+			if (CommandSigns.economy.withdrawPlayer(e.getPlayer(), amount).transactionSuccess() ^ negate) {
 				e.getRestrictions().push(true);
 			} else {
 				e.getRestrictions().push(false);

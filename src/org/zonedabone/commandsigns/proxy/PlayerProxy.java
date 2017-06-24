@@ -64,6 +64,8 @@ import org.bukkit.util.Vector;
  * originator and recipient can be the same player Allows sendMessage() methods
  * to be intercepted if the silent flag is set
  */
+
+@SuppressWarnings("deprecation")
 public class PlayerProxy implements Player {
 
 	private Player originator;
@@ -265,7 +267,6 @@ public class PlayerProxy implements Player {
 		return originator.getInventory();
 	}
 
-	@SuppressWarnings("deprecation")
 	public ItemStack getItemInHand() {
 		return originator.getItemInHand();
 	}
@@ -1366,7 +1367,6 @@ public class PlayerProxy implements Player {
 		return 0;
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public boolean hasAchievement(Achievement arg0) {
 		// TODO Auto-generated method stub
@@ -1397,7 +1397,6 @@ public class PlayerProxy implements Player {
 		
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void removeAchievement(Achievement arg0) {
 		// TODO Auto-generated method stub

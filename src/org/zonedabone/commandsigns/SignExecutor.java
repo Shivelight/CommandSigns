@@ -166,16 +166,8 @@ public class SignExecutor {
 						player.getDisplayName());
 				if (CommandSigns.economy != null
 						&& CommandSigns.economy.isEnabled()) {
-					line = line
-							.replaceAll(
-									"(?iu)<money>",
-									""
-											+ CommandSigns.economy
-													.getBalance(player
-															.getName()));
-					line = line.replaceAll("(?iu)<formatted>",
-							CommandSigns.economy.format(CommandSigns.economy
-									.getBalance(player.getName())));
+					line = line.replaceAll("(?iu)<money>", "" + CommandSigns.economy.getBalance(player));
+					line = line.replaceAll("(?iu)<formatted>", CommandSigns.economy.format(CommandSigns.economy.getBalance(player)));
 				}
 			}
 			commandList.add(line);

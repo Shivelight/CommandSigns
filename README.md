@@ -18,4 +18,9 @@ CommandSigns
 --------------------------------------
 This build is only work on Spigot 1.12+
 
-NOTE: This is not an official build, I just fork it from github.com/ericpauley/CommandSigns
+### Dependency
+* [Vault](http://dev.bukkit.org/server-mods/vault/)
+
+**Documentation:** [BukkitDev Page]
+
+NOTE: This is not an official build
