@@ -21,6 +21,6 @@ This build is only work on Spigot 1.12+
 ### Dependency
 * [Vault](http://dev.bukkit.org/server-mods/vault/)
 
-**Documentation:** [BukkitDev Page]
+**Documentation:** [BukkitDev Page](https://dev.bukkit.org/projects/command-signs/pages)
 
 NOTE: This is not an official build
