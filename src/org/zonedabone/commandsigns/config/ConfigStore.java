@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.zonedabone.commandsigns.CommandSigns;
 
 public abstract class ConfigStore implements Map<String, String> {

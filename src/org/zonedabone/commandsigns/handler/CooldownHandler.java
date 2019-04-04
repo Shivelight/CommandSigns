@@ -1,7 +1,6 @@
 package org.zonedabone.commandsigns.handler;
 
 import java.util.Map;
-
 import org.zonedabone.commandsigns.SignExecutor;
 
 public class CooldownHandler extends Handler {
@@ -39,13 +38,14 @@ public class CooldownHandler extends Handler {
               plugin.messenger.sendMessage(e.getPlayer(), "restriction.inverse_cooldown",
                   new String[] {"COOLDOWN"}, new String[] {"" + amount / 1000});
             else
-              plugin.messenger.sendMessage(e.getPlayer(), "restriction.inverse_cooldown",
+              plugin.messenger.sendMessage(e.getPlayer(), "restriction.cooldown",
                   new String[] {"COOLDOWN"}, new String[] {
                       "" + Math.round((amount + latest - System.currentTimeMillis()) / 1000 + 1)});
           }
           if (negate) {
-            lastUse.put(e.getPlayer().getName(), System.currentTimeMillis());
-            latest = lastUse.get(e.getPlayer());
+            long time = System.currentTimeMillis();
+            lastUse.put(e.getPlayer().getName(), time);
+            latest = time;
           }
         }
       } else {
@@ -64,8 +64,9 @@ public class CooldownHandler extends Handler {
               plugin.messenger.sendMessage(e.getPlayer(), "restriction.use_once");
           }
           if (negate) {
-            lastUse.put(e.getPlayer().getName(), System.currentTimeMillis());
-            latest = lastUse.get(e.getPlayer());
+            long time = System.currentTimeMillis();
+            lastUse.put(e.getPlayer().getName(), time);
+            latest = time;
           }
         }
       }

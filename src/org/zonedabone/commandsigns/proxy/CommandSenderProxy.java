@@ -1,7 +1,6 @@
 package org.zonedabone.commandsigns.proxy;
 
 import java.util.Set;
-
 import org.bukkit.Server;
 import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.Permission;
@@ -116,5 +115,9 @@ public class CommandSenderProxy implements CommandSender {
 
   public void setSilent(boolean silent) {
     this.silent = silent;
+  }
+
+  public Spigot spigot() {
+    return null;
   }
 }

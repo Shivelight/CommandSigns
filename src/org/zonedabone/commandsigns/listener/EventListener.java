@@ -1,5 +1,6 @@
 package org.zonedabone.commandsigns.listener;
 
+import net.gravitydevelopment.updater.Updater;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -11,13 +12,10 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.inventory.EquipmentSlot;
 import org.zonedabone.commandsigns.ClickHandler;
 import org.zonedabone.commandsigns.CommandSigns;
 import org.zonedabone.commandsigns.SignExecutor;
 import org.zonedabone.commandsigns.util.SignText;
-
-import net.gravitydevelopment.updater.Updater;
 
 public class EventListener implements Listener {
 
@@ -51,13 +49,6 @@ public class EventListener implements Listener {
   public void onPlayerInteract(final PlayerInteractEvent event) {
     Block block = null;
     Action action = event.getAction();
-    EquipmentSlot hand = event.getHand();
-
-    // fix event fired twice
-    if (hand == EquipmentSlot.OFF_HAND) {
-      return;
-    }
-
     if (action == Action.RIGHT_CLICK_BLOCK || action == Action.LEFT_CLICK_BLOCK
         || action == Action.PHYSICAL) {
       block = event.getClickedBlock();

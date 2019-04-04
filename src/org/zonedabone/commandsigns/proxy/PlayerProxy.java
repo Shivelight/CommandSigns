@@ -2,21 +2,21 @@ package org.zonedabone.commandsigns.proxy;
 
 import java.net.InetSocketAddress;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-
 import org.bukkit.Achievement;
 import org.bukkit.BanList.Type;
 import org.bukkit.Bukkit;
 import org.bukkit.Effect;
 import org.bukkit.EntityEffect;
+import org.bukkit.FluidCollisionMode;
 import org.bukkit.GameMode;
 import org.bukkit.Instrument;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Note;
 import org.bukkit.Particle;
 import org.bukkit.Server;
@@ -25,9 +25,14 @@ import org.bukkit.SoundCategory;
 import org.bukkit.Statistic;
 import org.bukkit.WeatherType;
 import org.bukkit.World;
+import org.bukkit.advancement.Advancement;
+import org.bukkit.advancement.AdvancementProgress;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.PistonMoveReaction;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationAbandonedEvent;
 import org.bukkit.entity.Arrow;
@@ -57,6 +62,8 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.util.BoundingBox;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
 /**
@@ -178,7 +185,6 @@ public class PlayerProxy implements Player {
     return originator.getBedSpawnLocation();
   }
 
-  @Override
   public boolean getCanPickupItems() {
     return originator.getCanPickupItems();
   }
@@ -203,7 +209,6 @@ public class PlayerProxy implements Player {
     return originator.getEntityId();
   }
 
-  @Override
   public EntityEquipment getEquipment() {
     return originator.getEquipment();
   }
@@ -288,8 +293,7 @@ public class PlayerProxy implements Player {
     return originator.getLastPlayed();
   }
 
-  @Deprecated
-  public List<Block> getLastTwoTargetBlocks(HashSet<Byte> transparent, int maxDistance) {
+  public List<Block> getLastTwoTargetBlocks(Set<Material> transparent, int maxDistance) {
     return originator.getLastTwoTargetBlocks(transparent, maxDistance);
   }
 
@@ -297,8 +301,7 @@ public class PlayerProxy implements Player {
     return originator.getLevel();
   }
 
-  @Deprecated
-  public List<Block> getLineOfSight(HashSet<Byte> transparent, int maxDistance) {
+  public List<Block> getLineOfSight(Set<Material> transparent, int maxDistance) {
     return originator.getLineOfSight(transparent, maxDistance);
   }
 
@@ -310,7 +313,6 @@ public class PlayerProxy implements Player {
     return originator.getLocation();
   }
 
-  @Override
   public Location getLocation(Location arg0) {
     return originator.getLocation(arg0);
   }
@@ -375,7 +377,6 @@ public class PlayerProxy implements Player {
     return originator.getRemainingAir();
   }
 
-  @Override
   public boolean getRemoveWhenFarAway() {
     return originator.getRemoveWhenFarAway();
   }
@@ -392,8 +393,7 @@ public class PlayerProxy implements Player {
     return originator.getSleepTicks();
   }
 
-  @Deprecated
-  public Block getTargetBlock(HashSet<Byte> transparent, int maxDistance) {
+  public Block getTargetBlock(Set<Material> transparent, int maxDistance) {
     return originator.getTargetBlock(transparent, maxDistance);
   }
 
@@ -433,7 +433,6 @@ public class PlayerProxy implements Player {
     originator.giveExp(amount);
   }
 
-  @Override
   public void giveExpLevels(int arg0) {
     originator.giveExpLevels(arg0);
   }
@@ -640,7 +639,7 @@ public class PlayerProxy implements Player {
     originator.removePotionEffect(type);
   }
 
-  @Override
+  @Deprecated
   public void resetMaxHealth() {
     originator.resetMaxHealth();
   }
@@ -651,11 +650,6 @@ public class PlayerProxy implements Player {
 
   public void saveData() {
     originator.saveData();
-  }
-
-  @Deprecated
-  public void sendBlockChange(Location loc, int material, byte data) {
-    originator.sendBlockChange(loc, material, data);
   }
 
   @Deprecated
@@ -708,12 +702,10 @@ public class PlayerProxy implements Player {
     originator.setBedSpawnLocation(location);
   }
 
-  @Override
   public void setBedSpawnLocation(Location arg0, boolean arg1) {
     originator.setBedSpawnLocation(arg0, arg1);
   }
 
-  @Override
   public void setCanPickupItems(boolean arg0) {
     originator.setCanPickupItems(arg0);
   }
@@ -803,9 +795,9 @@ public class PlayerProxy implements Player {
     originator.setOp(arg0);
   }
 
-  // public boolean setPassenger(Entity passenger) {
-  // return originator.setPassenger(passenger);
-  // }
+  public boolean setPassenger(Entity passenger) {
+    return originator.setPassenger(passenger);
+  }
 
   public void setPlayerListName(String name) {
     originator.setPlayerListName(name);
@@ -819,7 +811,6 @@ public class PlayerProxy implements Player {
     originator.setRemainingAir(ticks);
   }
 
-  @Override
   public void setRemoveWhenFarAway(boolean arg0) {
     originator.setRemoveWhenFarAway(arg0);
   }
@@ -845,7 +836,6 @@ public class PlayerProxy implements Player {
   }
 
   @Deprecated
-  @Override
   public void setTexturePack(String arg0) {
     originator.setTexturePack(arg0);
   }
@@ -914,655 +904,546 @@ public class PlayerProxy implements Player {
     originator.updateInventory();
   }
 
-  @Override
   public String getCustomName() {
     return originator.getCustomName();
   }
 
-  @Override
   public boolean isCustomNameVisible() {
     return originator.isCustomNameVisible();
   }
 
-  @Override
   public void setCustomName(String arg0) {
     originator.setCustomName(arg0);
   }
 
-  @Override
   public void setCustomNameVisible(boolean arg0) {
     originator.setCustomNameVisible(arg0);
   }
 
-  @Override
   public WeatherType getPlayerWeather() {
     return originator.getPlayerWeather();
   }
 
-  @Override
   @Deprecated
   public boolean isOnGround() {
     return originator.isOnGround();
   }
 
-  @Override
   public void resetPlayerWeather() {
     originator.resetPlayerWeather();
   }
 
-  @Override
   public void setPlayerWeather(WeatherType arg0) {
     originator.setPlayerWeather(arg0);
   }
 
-  @Override
   public Scoreboard getScoreboard() {
     return originator.getScoreboard();
   }
 
-  @Override
   public void setScoreboard(Scoreboard arg0)
       throws IllegalArgumentException, IllegalStateException {
     originator.setScoreboard(arg0);
   }
 
-  @Override
-  @Deprecated
-  public int _INVALID_getLastDamage() {
-    return originator._INVALID_getLastDamage();
-  }
-
-  @Override
-  @Deprecated
-  public void _INVALID_setLastDamage(int arg0) {
-    originator._INVALID_setLastDamage(arg0);
-  }
-
-  @Override
   public Entity getLeashHolder() throws IllegalStateException {
     return originator.getLeashHolder();
   }
 
-  @Override
   public boolean isLeashed() {
     return originator.isLeashed();
   }
 
-  @Override
   public void setLastDamage(double arg0) {
     originator.setLastDamage(arg0);
   }
 
-  @Override
   public boolean setLeashHolder(Entity arg0) {
     return originator.setLeashHolder(arg0);
   }
 
-  @Override
-  @Deprecated
-  public void _INVALID_damage(int arg0) {
-    originator._INVALID_damage(arg0);
-  }
-
-  @Override
-  @Deprecated
-  public void _INVALID_damage(int arg0, Entity arg1) {
-    originator._INVALID_damage(arg0, arg1);
-  }
-
-  @Override
-  @Deprecated
-  public int _INVALID_getHealth() {
-    return originator._INVALID_getHealth();
-  }
-
-  @Override
-  @Deprecated
-  public int _INVALID_getMaxHealth() {
-    return originator._INVALID_getMaxHealth();
-  }
-
-  @Override
-  @Deprecated
-  public void _INVALID_setHealth(int arg0) {
-    originator._INVALID_setHealth(arg0);
-  }
-
-  @Override
-  @Deprecated
-  public void _INVALID_setMaxHealth(int arg0) {
-    originator._INVALID_setMaxHealth(arg0);
-  }
-
-  @Override
   public void damage(double arg0) {
     originator.damage(arg0);
   }
 
-  @Override
   public void damage(double arg0, Entity arg1) {
     originator.damage(arg0, arg1);
   }
 
-  @Override
   public void setHealth(double arg0) {
     originator.setHealth(arg0);
   }
 
-  @Override
   public void setMaxHealth(double arg0) {
     originator.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(arg0);
   }
 
-  @Override
   public double getHealthScale() {
     return originator.getHealthScale();
   }
 
-  @Override
   public boolean isHealthScaled() {
     return originator.isHealthScaled();
   }
 
-  @Override
   @Deprecated
   public void playSound(Location arg0, String arg1, float arg2, float arg3) {
     originator.playSound(arg0, arg1, arg2, arg3);
   }
 
-  @Override
   public void setHealthScale(double arg0) throws IllegalArgumentException {
     originator.setHealthScale(arg0);
   }
 
-  @Override
   public void setHealthScaled(boolean arg0) {
     originator.setHealthScaled(arg0);
   }
 
-  @Override
   public void setResourcePack(String arg0) {
     originator.setResourcePack(arg0);
   }
 
-  @Override
-  public int getCooldown(Material arg0) {
-    // TODO Auto-generated method stub
+  public boolean discoverRecipe(NamespacedKey recipe) {
+    return false;
+  }
+
+  public int discoverRecipes(Collection<NamespacedKey> recipes) {
     return 0;
   }
 
-  @Override
+  public int getCooldown(Material material) {
+    return 0;
+  }
+
   public MainHand getMainHand() {
-    // TODO Auto-generated method stub
     return null;
   }
 
-  @Override
-  public boolean hasCooldown(Material arg0) {
-    // TODO Auto-generated method stub
+  public Entity getShoulderEntityLeft() {
+    return null;
+  }
+
+  public Entity getShoulderEntityRight() {
+    return null;
+  }
+
+  public boolean hasCooldown(Material material) {
     return false;
   }
 
-  @Override
   public boolean isHandRaised() {
-    // TODO Auto-generated method stub
     return false;
   }
 
-  @Override
-  public InventoryView openMerchant(Villager arg0, boolean arg1) {
-    // TODO Auto-generated method stub
+  public InventoryView openMerchant(Villager trader, boolean force) {
     return null;
   }
 
-  @Override
-  public InventoryView openMerchant(Merchant arg0, boolean arg1) {
-    // TODO Auto-generated method stub
+  public InventoryView openMerchant(Merchant merchant, boolean force) {
     return null;
   }
 
-  @Override
-  public void setCooldown(Material arg0, int arg1) {
-    // TODO Auto-generated method stub
+  public void setCooldown(Material material, int ticks) {
 
   }
 
-  @Override
-  public List<Block> getLastTwoTargetBlocks(Set<Material> arg0, int arg1) {
-    // TODO Auto-generated method stub
+  public void setShoulderEntityLeft(Entity entity) {
+
+  }
+
+  public void setShoulderEntityRight(Entity entity) {
+
+  }
+
+  public boolean undiscoverRecipe(NamespacedKey recipe) {
+    return false;
+  }
+
+  public int undiscoverRecipes(Collection<NamespacedKey> recipes) {
+    return 0;
+  }
+
+  public PotionEffect getPotionEffect(PotionEffectType type) {
     return null;
   }
 
-  @Override
-  public List<Block> getLineOfSight(Set<Material> arg0, int arg1) {
-    // TODO Auto-generated method stub
+  public Block getTargetBlockExact(int maxDistance) {
     return null;
   }
 
-  @Override
-  public PotionEffect getPotionEffect(PotionEffectType arg0) {
-    // TODO Auto-generated method stub
+  public Block getTargetBlockExact(int maxDistance, FluidCollisionMode fluidCollisionMode) {
     return null;
   }
 
-  @Override
-  public Block getTargetBlock(Set<Material> arg0, int arg1) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
   public boolean hasAI() {
-    // TODO Auto-generated method stub
     return false;
   }
 
-  @Override
   public boolean isCollidable() {
-    // TODO Auto-generated method stub
     return false;
   }
 
-  @Override
   public boolean isGliding() {
-    // TODO Auto-generated method stub
     return false;
   }
 
-  @Override
-  public void setAI(boolean arg0) {
-    // TODO Auto-generated method stub
-
+  public boolean isRiptiding() {
+    return false;
   }
 
-  @Override
-  public void setCollidable(boolean arg0) {
-    // TODO Auto-generated method stub
-
+  public boolean isSwimming() {
+    return false;
   }
 
-  @Override
-  public void setGliding(boolean arg0) {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public AttributeInstance getAttribute(Attribute arg0) {
-    // TODO Auto-generated method stub
+  public RayTraceResult rayTraceBlocks(double maxDistance) {
     return null;
   }
 
-  @Override
-  public boolean addPassenger(Entity arg0) {
-    // TODO Auto-generated method stub
+  public RayTraceResult rayTraceBlocks(double maxDistance, FluidCollisionMode fluidCollisionMode) {
+    return null;
+  }
+
+  public void setAI(boolean ai) {
+
+  }
+
+  public void setCollidable(boolean collidable) {
+
+  }
+
+  public void setGliding(boolean gliding) {
+
+  }
+
+  public void setSwimming(boolean swimming) {
+
+  }
+
+  public AttributeInstance getAttribute(Attribute attribute) {
+    return null;
+  }
+
+  public boolean addPassenger(Entity passenger) {
     return false;
   }
 
-  @Override
-  public boolean addScoreboardTag(String arg0) {
-    // TODO Auto-generated method stub
+  public boolean addScoreboardTag(String tag) {
     return false;
   }
 
-  @Override
+  public BoundingBox getBoundingBox() {
+    return null;
+  }
+
+  public BlockFace getFacing() {
+    return null;
+  }
+
   public double getHeight() {
-    // TODO Auto-generated method stub
     return 0;
   }
 
-  @Override
   public List<Entity> getPassengers() {
-    // TODO Auto-generated method stub
     return null;
   }
 
-  @Override
+  public PistonMoveReaction getPistonMoveReaction() {
+    return null;
+  }
+
   public int getPortalCooldown() {
-    // TODO Auto-generated method stub
     return 0;
   }
 
-  @Override
   public Set<String> getScoreboardTags() {
-    // TODO Auto-generated method stub
     return null;
   }
 
-  @Override
   public double getWidth() {
-    // TODO Auto-generated method stub
     return 0;
   }
 
-  @Override
   public boolean hasGravity() {
-    // TODO Auto-generated method stub
     return false;
   }
 
-  @Override
   public boolean isGlowing() {
-    // TODO Auto-generated method stub
     return false;
   }
 
-  @Override
   public boolean isInvulnerable() {
-    // TODO Auto-generated method stub
     return false;
   }
 
-  @Override
-  public boolean removePassenger(Entity arg0) {
-    // TODO Auto-generated method stub
+  public boolean isPersistent() {
     return false;
   }
 
-  @Override
-  public boolean removeScoreboardTag(String arg0) {
-    // TODO Auto-generated method stub
+  public boolean removePassenger(Entity passenger) {
     return false;
   }
 
-  @Override
-  public void setGlowing(boolean arg0) {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public void setGravity(boolean arg0) {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public void setInvulnerable(boolean arg0) {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public boolean setPassenger(Entity arg0) {
-    // TODO Auto-generated method stub
+  public boolean removeScoreboardTag(String tag) {
     return false;
   }
 
-  @Override
-  public void setPortalCooldown(int arg0) {
-    // TODO Auto-generated method stub
+  public void setGlowing(boolean flag) {
 
   }
 
-  @Override
-  public <T extends Projectile> T launchProjectile(Class<? extends T> arg0, Vector arg1) {
-    // TODO Auto-generated method stub
+  public void setGravity(boolean gravity) {
+
+  }
+
+  public void setInvulnerable(boolean flag) {
+
+  }
+
+  public void setPersistent(boolean persistent) {
+
+  }
+
+  public void setPortalCooldown(int cooldown) {
+
+  }
+
+  public <T extends Projectile> T launchProjectile(Class<? extends T> projectile, Vector velocity) {
     return null;
   }
 
-  @Override
-  public void decrementStatistic(Statistic arg0) throws IllegalArgumentException {
-    // TODO Auto-generated method stub
+  public void decrementStatistic(Statistic statistic) throws IllegalArgumentException {
 
   }
 
-  @Override
-  public void decrementStatistic(Statistic arg0, int arg1) throws IllegalArgumentException {
-    // TODO Auto-generated method stub
+  public void decrementStatistic(Statistic statistic, int amount) throws IllegalArgumentException {
 
   }
 
-  @Override
-  public void decrementStatistic(Statistic arg0, Material arg1) throws IllegalArgumentException {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public void decrementStatistic(Statistic arg0, EntityType arg1) throws IllegalArgumentException {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public void decrementStatistic(Statistic arg0, Material arg1, int arg2)
+  public void decrementStatistic(Statistic statistic, Material material)
       throws IllegalArgumentException {
-    // TODO Auto-generated method stub
 
   }
 
-  @Override
-  public void decrementStatistic(Statistic arg0, EntityType arg1, int arg2) {
-    // TODO Auto-generated method stub
+  public void decrementStatistic(Statistic statistic, EntityType entityType)
+      throws IllegalArgumentException {
 
   }
 
-  @Override
+  public void decrementStatistic(Statistic statistic, Material material, int amount)
+      throws IllegalArgumentException {
+
+  }
+
+  public void decrementStatistic(Statistic statistic, EntityType entityType, int amount) {
+
+  }
+
+  public AdvancementProgress getAdvancementProgress(Advancement advancement) {
+    return null;
+  }
+
+  public int getClientViewDistance() {
+    return 0;
+  }
+
+  public String getLocale() {
+    return null;
+  }
+
+  public String getPlayerListFooter() {
+    return null;
+  }
+
+  public String getPlayerListHeader() {
+    return null;
+  }
+
   public Entity getSpectatorTarget() {
-    // TODO Auto-generated method stub
     return null;
   }
 
-  @Override
-  public int getStatistic(Statistic arg0) throws IllegalArgumentException {
-    // TODO Auto-generated method stub
+  public int getStatistic(Statistic statistic) throws IllegalArgumentException {
     return 0;
   }
 
-  @Override
-  public int getStatistic(Statistic arg0, Material arg1) throws IllegalArgumentException {
-    // TODO Auto-generated method stub
+  public int getStatistic(Statistic statistic, Material material) throws IllegalArgumentException {
     return 0;
   }
 
-  @Override
-  public int getStatistic(Statistic arg0, EntityType arg1) throws IllegalArgumentException {
-    // TODO Auto-generated method stub
+  public int getStatistic(Statistic statistic, EntityType entityType)
+      throws IllegalArgumentException {
     return 0;
   }
 
-  @Override
-  public boolean hasAchievement(Achievement arg0) {
-    // TODO Auto-generated method stub
+  public boolean hasAchievement(Achievement achievement) {
     return false;
   }
 
-  @Override
-  public void incrementStatistic(Statistic arg0, EntityType arg1) throws IllegalArgumentException {
-    // TODO Auto-generated method stub
+  public void hidePlayer(Plugin plugin, Player player) {
 
   }
 
-  @Override
-  public void incrementStatistic(Statistic arg0, EntityType arg1, int arg2)
+  public void incrementStatistic(Statistic statistic, EntityType entityType)
       throws IllegalArgumentException {
-    // TODO Auto-generated method stub
 
   }
 
-  @Override
-  public void playSound(Location arg0, Sound arg1, SoundCategory arg2, float arg3, float arg4) {
-    // TODO Auto-generated method stub
+  public void incrementStatistic(Statistic statistic, EntityType entityType, int amount)
+      throws IllegalArgumentException {
 
   }
 
-  @Override
-  public void playSound(Location arg0, String arg1, SoundCategory arg2, float arg3, float arg4) {
-    // TODO Auto-generated method stub
+  public void playSound(Location location, Sound sound, SoundCategory category, float volume,
+      float pitch) {
 
   }
 
-  @Override
-  public void removeAchievement(Achievement arg0) {
-    // TODO Auto-generated method stub
+  public void playSound(Location location, String sound, SoundCategory category, float volume,
+      float pitch) {
 
   }
 
-  @Override
+  public void removeAchievement(Achievement achievement) {
+
+  }
+
   public void resetTitle() {
-    // TODO Auto-generated method stub
 
   }
 
-  @Override
-  public void sendSignChange(Location arg0, String[] arg1) throws IllegalArgumentException {
-    // TODO Auto-generated method stub
+  public void sendBlockChange(Location loc, BlockData block) {
 
   }
 
-  @Override
-  public void sendTitle(String arg0, String arg1) {
-    // TODO Auto-generated method stub
+  public void sendSignChange(Location loc, String[] lines) throws IllegalArgumentException {
 
   }
 
-  @Override
-  public void sendTitle(String arg0, String arg1, int arg2, int arg3, int arg4) {
-    // TODO Auto-generated method stub
+  public void sendTitle(String title, String subtitle) {
 
   }
 
-  @Override
-  public void setResourcePack(String arg0, byte[] arg1) {
-    // TODO Auto-generated method stub
+  public void sendTitle(String title, String subtitle, int fadeIn, int stay, int fadeOut) {
 
   }
 
-  @Override
-  public void setSpectatorTarget(Entity arg0) {
-    // TODO Auto-generated method stub
+  public void setPlayerListFooter(String footer) {
 
   }
 
-  @Override
-  public void setStatistic(Statistic arg0, int arg1) throws IllegalArgumentException {
-    // TODO Auto-generated method stub
+  public void setPlayerListHeader(String header) {
 
   }
 
-  @Override
-  public void setStatistic(Statistic arg0, Material arg1, int arg2)
+  public void setPlayerListHeaderFooter(String header, String footer) {
+
+  }
+
+  public void setResourcePack(String url, byte[] hash) {
+
+  }
+
+  public void setSpectatorTarget(Entity entity) {
+
+  }
+
+  public void setStatistic(Statistic statistic, int newValue) throws IllegalArgumentException {
+
+  }
+
+  public void setStatistic(Statistic statistic, Material material, int newValue)
       throws IllegalArgumentException {
-    // TODO Auto-generated method stub
 
   }
 
-  @Override
-  public void setStatistic(Statistic arg0, EntityType arg1, int arg2) {
-    // TODO Auto-generated method stub
+  public void setStatistic(Statistic statistic, EntityType entityType, int newValue) {
 
   }
 
-  @Override
-  public void spawnParticle(Particle arg0, Location arg1, int arg2) {
-    // TODO Auto-generated method stub
+  public void showPlayer(Plugin plugin, Player player) {
 
   }
 
-  @Override
-  public <T> void spawnParticle(Particle arg0, Location arg1, int arg2, T arg3) {
-    // TODO Auto-generated method stub
+  public void spawnParticle(Particle particle, Location location, int count) {
 
   }
 
-  @Override
-  public void spawnParticle(Particle arg0, double arg1, double arg2, double arg3, int arg4) {
-    // TODO Auto-generated method stub
+  public <T> void spawnParticle(Particle particle, Location location, int count, T data) {
 
   }
 
-  @Override
-  public <T> void spawnParticle(Particle arg0, double arg1, double arg2, double arg3, int arg4,
-      T arg5) {
-    // TODO Auto-generated method stub
+  public void spawnParticle(Particle particle, double x, double y, double z, int count) {
 
   }
 
-  @Override
-  public void spawnParticle(Particle arg0, Location arg1, int arg2, double arg3, double arg4,
-      double arg5) {
-    // TODO Auto-generated method stub
+  public <T> void spawnParticle(Particle particle, double x, double y, double z, int count,
+      T data) {
 
   }
 
-  @Override
-  public <T> void spawnParticle(Particle arg0, Location arg1, int arg2, double arg3, double arg4,
-      double arg5, T arg6) {
-    // TODO Auto-generated method stub
+  public void spawnParticle(Particle particle, Location location, int count, double offsetX,
+      double offsetY, double offsetZ) {
 
   }
 
-  @Override
-  public void spawnParticle(Particle arg0, Location arg1, int arg2, double arg3, double arg4,
-      double arg5, double arg6) {
-    // TODO Auto-generated method stub
+  public <T> void spawnParticle(Particle particle, Location location, int count, double offsetX,
+      double offsetY, double offsetZ, T data) {
 
   }
 
-  @Override
-  public void spawnParticle(Particle arg0, double arg1, double arg2, double arg3, int arg4,
-      double arg5, double arg6, double arg7) {
-    // TODO Auto-generated method stub
+  public void spawnParticle(Particle particle, Location location, int count, double offsetX,
+      double offsetY, double offsetZ, double extra) {
 
   }
 
-  @Override
-  public <T> void spawnParticle(Particle arg0, Location arg1, int arg2, double arg3, double arg4,
-      double arg5, double arg6, T arg7) {
-    // TODO Auto-generated method stub
+  public void spawnParticle(Particle particle, double x, double y, double z, int count,
+      double offsetX, double offsetY, double offsetZ) {
 
   }
 
-  @Override
-  public <T> void spawnParticle(Particle arg0, double arg1, double arg2, double arg3, int arg4,
-      double arg5, double arg6, double arg7, T arg8) {
-    // TODO Auto-generated method stub
+  public <T> void spawnParticle(Particle particle, Location location, int count, double offsetX,
+      double offsetY, double offsetZ, double extra, T data) {
 
   }
 
-  @Override
-  public void spawnParticle(Particle arg0, double arg1, double arg2, double arg3, int arg4,
-      double arg5, double arg6, double arg7, double arg8) {
-    // TODO Auto-generated method stub
+  public <T> void spawnParticle(Particle particle, double x, double y, double z, int count,
+      double offsetX, double offsetY, double offsetZ, T data) {
 
   }
 
-  @Override
-  public <T> void spawnParticle(Particle arg0, double arg1, double arg2, double arg3, int arg4,
-      double arg5, double arg6, double arg7, double arg8, T arg9) {
-    // TODO Auto-generated method stub
+  public void spawnParticle(Particle particle, double x, double y, double z, int count,
+      double offsetX, double offsetY, double offsetZ, double extra) {
 
   }
 
-  @Override
+  public <T> void spawnParticle(Particle particle, double x, double y, double z, int count,
+      double offsetX, double offsetY, double offsetZ, double extra, T data) {
+
+  }
+
   public Spigot spigot() {
-    // TODO Auto-generated method stub
     return null;
   }
 
-  @Override
-  public void stopSound(Sound arg0) {
-    // TODO Auto-generated method stub
+  public void stopSound(Sound sound) {
 
   }
 
-  @Override
-  public void stopSound(String arg0) {
-    // TODO Auto-generated method stub
+  public void stopSound(String sound) {
 
   }
 
-  @Override
-  public void stopSound(Sound arg0, SoundCategory arg1) {
-    // TODO Auto-generated method stub
+  public void stopSound(Sound sound, SoundCategory category) {
 
   }
 
-  @Override
-  public void stopSound(String arg0, SoundCategory arg1) {
-    // TODO Auto-generated method stub
+  public void stopSound(String sound, SoundCategory category) {
 
   }
+
+  public void updateCommands() {
+
+  }
+
 
 }

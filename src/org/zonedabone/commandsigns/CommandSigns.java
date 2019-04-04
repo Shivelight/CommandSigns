@@ -1,10 +1,8 @@
 package org.zonedabone.commandsigns;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
@@ -15,13 +13,9 @@ import org.zonedabone.commandsigns.config.Config;
 import org.zonedabone.commandsigns.config.Messaging;
 import org.zonedabone.commandsigns.listener.CommandListener;
 import org.zonedabone.commandsigns.listener.EventListener;
-import org.zonedabone.commandsigns.thirdparty.Metrics;
-import org.zonedabone.commandsigns.thirdparty.Metrics.Graph;
-import org.zonedabone.commandsigns.thirdparty.Metrics.Plotter;
 import org.zonedabone.commandsigns.util.PlayerState;
 import org.zonedabone.commandsigns.util.SignLoader;
 import org.zonedabone.commandsigns.util.SignText;
-
 import net.gravitydevelopment.updater.Updater;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
@@ -33,7 +27,6 @@ public class CommandSigns extends JavaPlugin {
   public CommandListener commandExecutor = new CommandListener(this);
 
   // Third-party
-  private Metrics metrics;
   private final int bukkitId = 37306;
 
   public static Economy economy = null;
@@ -87,11 +80,6 @@ public class CommandSigns extends JavaPlugin {
         updater =
             new Updater(this, getBukkitId(), this.getFile(), Updater.UpdateType.NO_DOWNLOAD, false);
     }
-
-    if (config.getBoolean("metrics.enable") == true)
-      startMetrics();
-    else
-      getLogger().info(messenger.parseRaw("metrics.opt_out"));
   }
 
   @Override
@@ -102,7 +90,7 @@ public class CommandSigns extends JavaPlugin {
   @Override
   public void onEnable() {
     load();
-    PluginManager pm = getServer().getPluginManager();
+    PluginManager pm = this.getServer().getPluginManager();
     getCommand("commandsigns").setExecutor(commandExecutor);
     pm.registerEvents(listener, this);
   }
@@ -123,81 +111,6 @@ public class CommandSigns extends JavaPlugin {
       permission = permissionProvider.getProvider();
     }
     return permission != null;
-  }
-
-  public void startMetrics() {
-    try {
-      metrics = new Metrics(this);
-    } catch (IOException e) {
-      getLogger().warning(messenger.parseRaw("metrics.failure"));
-    }
-    Graph g = metrics.createGraph("Number of CommandSigns");
-    g.addPlotter(new Plotter() {
-
-      @Override
-      public int getValue() {
-        return activeSigns.size();
-      }
-    });
-    Graph g3 = metrics.createGraph("CommandSigns Version");
-    g3.addPlotter(new Plotter(getDescription().getVersion()) {
-
-      @Override
-      public int getValue() {
-        return 1;
-      }
-    });
-    Graph g2 = metrics.createGraph("Super Signs Used");
-    g2.addPlotter(new Plotter("Permission") {
-
-      @Override
-      public int getValue() {
-        int number = 0;
-        for (SignText cst : activeSigns.values()) {
-          for (String s : cst) {
-            if (s.startsWith("/*") || s.startsWith("!/*")) {
-              number++;
-            }
-          }
-        }
-        return number;
-      }
-    });
-    g2.addPlotter(new Plotter("Op") {
-
-      @Override
-      public int getValue() {
-        int number = 0;
-        for (SignText cst : activeSigns.values()) {
-          for (String s : cst) {
-            if (s.startsWith("/^") || s.startsWith("!/^")) {
-              number++;
-            }
-          }
-        }
-        return number;
-      }
-    });
-    g2.addPlotter(new Plotter("Console") {
-
-      @Override
-      public int getValue() {
-        int number = 0;
-        for (SignText cst : activeSigns.values()) {
-          for (String s : cst) {
-            if (s.startsWith("/#") || s.startsWith("!/#")) {
-              number++;
-            }
-          }
-        }
-        return number;
-      }
-    });
-    if (metrics.start()) {
-      getLogger().info(messenger.parseRaw("metrics.success"));
-    } else {
-      getLogger().info(messenger.parseRaw("metrics.failure"));
-    }
   }
 
   public int getBukkitId() {

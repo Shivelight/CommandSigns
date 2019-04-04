@@ -1,10 +1,12 @@
 package org.zonedabone.commandsigns.util;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.Set;
-
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -23,17 +25,23 @@ public class YamlLoader {
     File f = new File(plugin.getDataFolder(), filename);
 
     // Load the included file
-    FileConfiguration internal =
-        YamlConfiguration.loadConfiguration(new InputStreamReader(plugin.getResource(filename)));
+    InputStreamReader internalReader =
+        new InputStreamReader(plugin.getResource(filename), Charset.forName("UTF8"));
+    FileConfiguration internal = YamlConfiguration.loadConfiguration(internalReader);
 
-    // Write the included file if an external one doesn't exist
-    if (!f.exists()) {
+    // Load the external file from the plugins folder
+    FileConfiguration external;
+    try {
+      InputStreamReader externalReader =
+          new InputStreamReader(new FileInputStream(f), Charset.forName("UTF8"));
+      external = YamlConfiguration.loadConfiguration(externalReader);
+
+    } catch (FileNotFoundException ex) {
       plugin.getLogger().info("Creating default " + filename + ".");
       plugin.saveResource(filename, true);
-    }
 
-    // Load the external file
-    Configuration external = YamlConfiguration.loadConfiguration(f);
+      external = internal;
+    }
 
     // Check file for changes
     Set<String> internalKeys = internal.getKeys(true);

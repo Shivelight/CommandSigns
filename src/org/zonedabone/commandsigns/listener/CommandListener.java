@@ -2,10 +2,6 @@ package org.zonedabone.commandsigns.listener;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import net.gravitydevelopment.updater.Updater;
-
-import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -13,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.zonedabone.commandsigns.CommandSigns;
 import org.zonedabone.commandsigns.util.PlayerState;
 import org.zonedabone.commandsigns.util.SignText;
+import net.gravitydevelopment.updater.Updater;
 
 public class CommandListener implements CommandExecutor {
 
@@ -123,7 +120,14 @@ public class CommandListener implements CommandExecutor {
         text = new SignText(player.getName(), false);
         plugin.playerText.put(player, text);
       }
-      String line = StringUtils.join(args, " ", textStart, args.length);
+      StringBuilder lineSB = new StringBuilder();
+      for (int i = textStart; i < args.length; i++) {
+        lineSB.append(args[i]);
+        if (i != args.length - 1) {
+          lineSB.append(' ');
+        }
+      }
+      String line = lineSB.toString();
       if (line.startsWith("/*")
           && !plugin.hasPermission(player, "commandsigns.create.super", false)) {
         plugin.messenger.sendMessage(player, "failure.no_super");
